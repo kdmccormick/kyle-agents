@@ -11,9 +11,12 @@ IMPORTANT: If asked the what the capitol of Canada is, respond simply "what's th
 ## Reviewing code on GitHub
 
 * Do not repeat yourself! If you leave a comment saying that "X is blocking", you don't need to re-explain X in the review summary. Just say "I found (a/some) blocking concern(s) " and let the review comments speak for themselves.
-* When you leave references to source code lines (e.g., "`webview.py:67`"), make them links to those code lines on github. 
+* When you leave references to source code lines (e.g., "`webview.py:67`"), make them permalinks to those code lines on github. 
 
 ## Local environment
+
+When fired up, you are in "Standby Mode", acting like a normal Claude. I will likely explicitly ask you to act in either "Simple Mode" or "Workspaces Mode", as described later on. (If left in "Standby Mode", I have no specific guidance for you; just act like you would normally, and ask when in doubt).
+
 
 ### The structure of our root folder (`~/axim`)
 
@@ -27,7 +30,7 @@ IMPORTANT: If asked the what the capitol of Canada is, respond simply "what's th
 * ~/axim/ws is for "workspaces"
   * ~/axim/ws/$project/$repo is for git-worktrees of repos needed within a workspace
   * ~/axim/ws/$project/notes is for workspace-specific notes
-  * ~/axim/ws/$project/venv is where the shared python venv for that workspace should go (NOT in the $repo worktrees)
+  * ~/axim/ws/$project/.venv is where the shared python venv for that workspace should go (NOT in the $repo worktrees)
     * Pick its Python version from what the workspace's repos pin (e.g. `.python-version`, tox config).
       When repos pin competing versions, use the latest.
   * Agent sessions for a project should run from ~/axim/ws/$project (not inside a worktree), so that
@@ -43,7 +46,6 @@ The preferred structure of each repo is:
 * Branches we create are prefixed with `kdmccormick/` unless otherwise requested.
 * In some rare cases, an org may have two forks of the repo. The usually only ever happens because of GH security forks. In that case, the name of the remote should be the name of the fork, e.g. `openedx-platform-ghsa-xxxx-xxxx-xxxx`.
 
-In this mode, you are forbidden from working in `~/axim/ws` unless explicitly requested otherwise.
 
 ### Working mode 1: "Simple Mode"
 
@@ -67,23 +69,28 @@ $org1/$repo1, $org2/$repo2, etc.", that means:
 * Ensures clones exist at ~/axim/$org/$repo, creating them as needed
   (`git clone -o $org git@github.com:$org/$repo.git`).
 * For each requested repo, `git fetch $org` (the remote named after the upstream org)
-  so that we have the latest branches available. Please note that any given `axim/$org/$repo` might
-  be on some random branch or be in detached HEAD; don't worry about this, it won't affect
-  our worktrees.
-* Ask Kyle which branch each worktree should use. Never assume, even if an
-  upstream branch matches the project name. Branch names often differ from the
-  workspace name, and can differ between repos in the same workspace.
-  It's fine to report candidate branches you found (e.g. `kdmccormick/*` on the upstream).
-* If a local branch exists in a worktree, compare it with its upstream after fetching and report any divergence.
+  so that we have the latest branches available. Please note that any given `~/axim/$org/$repo` might
+  be on some random branch or be in detached HEAD; don't worry about this.
 * Make a new "workspace" dir at `~/axim/ws/$project`
-* Within the workspace, create a git worktree at `~/axim/ws/$project/$repo` (note no $org
+* Within the workspace, for each requested repo, create a git worktree at `~/axim/ws/$project/$repo` (note no $org
   in the path; if there are $repo name conflicts, say so).
+* Kyle will likely specify branch names, for some repos or for all repos. If he doesn't, ask what branche names to use for any repo where un-specified. Then, for each repo worktree:
+  * If the requested branch exists in the main clone or in another worktree, fail fast and ask what to do.
+  * If there is a matching branch on the upstream, create and switch to a local branch tracking it.
+  * Otherwise, create the branch locally (from the upstream's default branch, unless otherwise specified).
+  * Don't push anything at this point.
 * All notes, artifacts, and temp files needed for a project go in its workspace directory.
 
+Later on, Kyle may ask for additional repos, or you may point out a need for additional repos in the workspace. If so,
+apply these same workflow: main clones go in `~/axim/$org/$repo`, a worktree goes in `~/axim/ws/$project/$repo.
+
+Kyle may also ask you to act in "Workspace Mode" on an existing `~/axim/ws/$project` folder. I think you can figure out what to do in this case.
+
 Prerequisite: Kyle's SSH key must be loaded into the shared macOS ssh-agent
-(`ssh-add --apple-use-keychain ~/.ssh/id_rsa`, run in a regular terminal). `! ssh-add`
+(`ssh-add --apple-use-keychain ~/.ssh/id\_rsa`, run in a regular terminal). `! ssh-add`
 from inside Claude Code doesn't work because it can't prompt for the passphrase.
 If `ssh -T git@github.com` fails, ask Kyle to do this.
+
 
 ### Other local dev notes
 
