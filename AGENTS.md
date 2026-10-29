@@ -61,7 +61,9 @@ specific branch. It is lightweight and meant for quick questions, short investig
 reviews. Don't change code in this mode.
 
 Work directly in `~/axim/$org/$repo`. You may switch branches and run tests or checks using each
-repo's `.venv`. Ask before cloning additional repos, and get explicit confirmation before doing
+repo's `.venv`. When performing discovery or using the repos as reference for an external review,
+you are encouraged to pull latest code for the repos that you're researching, as long as the merges
+are fast-forward. Ask before cloning additional repos, and get explicit confirmation before doing
 anything destructive.
 
 Notes go in `~/axim/notes`. Don't touch `~/axim/ws` unless Kyle explicitly asks.
@@ -99,7 +101,7 @@ up where it left off.
 Kyle's SSH key must be loaded into the shared macOS ssh-agent with
 `ssh-add --apple-use-keychain ~/.ssh/id_rsa`, run in a regular terminal. Running `! ssh-add` from
 inside Claude Code doesn't work because it can't prompt for the passphrase. If
-`ssh -T git@github.com` fails, ask Kyle to do this.
+`ssh -T git@github.com` fails, ask Kyle to do this. DO NOT USE HTTPS CLONE OR TRY OTHER WORKAROUNDS IF KYLE FORGETS TO DO THIS!!
 
 ### Other local dev notes
 
